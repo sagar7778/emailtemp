@@ -8,10 +8,12 @@
     "smoke": "node scripts/smoke-test.cjs"
   },
   "devDependencies": {
+    "@types/nanoid": "^2.1.0",
     "@types/node": "^24.2.1",
     "@types/qrcode": "^1.5.5",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
+    "@types/sanitize-html": "^2.16.0",
     "@typescript-eslint/eslint-plugin": "^8.39.0",
     "@typescript-eslint/parser": "^8.39.0",
     "eslint": "^9.33.0",

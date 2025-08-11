@@ -51,12 +51,6 @@ const config: Config = {
     },
   },
   plugins: [require('tailwindcss-animate')],
-  // shadcn/ui friendly class names
-  safelist: [
-    'data-[state=open]:animate-fade-in',
-    'data-[state=closed]:animate-fade-out',
-    'dark',
-  ],
 };
 
 export default config;

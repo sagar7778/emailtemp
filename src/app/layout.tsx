@@ -72,7 +72,7 @@ export default function RootLayout({
         <link rel="canonical" href={siteUrl} />
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: metadata.other["json-ld"] }}
+          dangerouslySetInnerHTML={{ __html: metadata.other?.["json-ld"] || "" }}
         />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
