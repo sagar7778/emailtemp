@@ -30,6 +30,7 @@ export interface TempMailProvider {
   id: ProviderId;
   label: string;
   domains: string[];
+  getDomains?: () => Promise<string[]>;
   getMailboxes(): Promise<Mailbox[]>;
   createMailbox(local: string, domain: string): Promise<Mailbox>;
   getMessages(mailbox: Mailbox): Promise<MessageSummary[]>;
