@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { getActiveProviders } from "@/lib/providers";
 import { z } from "zod";
+import { shouldThrottle, jsonOk, jsonError } from "@/lib/api/utils";
 
 export const runtime = "nodejs";
 
@@ -12,6 +13,9 @@ const ProviderSchema = z.object({
 
 export async function GET(req: NextRequest) {
   try {
+    if (shouldThrottle(req)) {
+      return jsonError(new Error("RATE_LIMIT"), 429);
+    }
     const providers = getActiveProviders();
     const providersList = await Promise.all(
       providers.map(async (p) => {
@@ -31,8 +35,8 @@ export async function GET(req: NextRequest) {
     const domainsByProvider = Object.fromEntries(
       providersList.map((p) => [p.id, p.domains])
     );
-    return NextResponse.json({ providers: providersList, domainsByProvider });
+    return jsonOk({ providers: providersList, domainsByProvider });
   } catch (e) {
-    return NextResponse.json({ error: "Failed to fetch providers." }, { status: 500 });
+    return jsonError(e);
   }
 }

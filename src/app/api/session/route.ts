@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { pickProvider } from "@/lib/providers";
 import { z } from "zod";
+import { shouldThrottle, jsonOk, jsonError } from "@/lib/api/utils";
 
 export const runtime = "nodejs";
 
@@ -13,26 +14,24 @@ const BodySchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
+    if (shouldThrottle(req)) {
+      return jsonError(new Error("RATE_LIMIT"), 429);
+    }
     const body = await req.json();
     const { provider, type, local, domain } = BodySchema.parse(body);
-    const prov = pickProvider(provider);
-    let mailbox;
+    const prov = pickProvider(provider as any);
+    let mailbox: any;
     if (type === "random") {
-      mailbox = await prov.createMailbox
-        ? await prov.createMailbox(local || "", domain || "")
-        : await (prov.createRandomMailbox?.(domain) ?? Promise.reject("Not implemented"));
+      mailbox = await prov.createMailbox ? await prov.createMailbox(local || "", domain || "") : await (prov as any).createRandomMailbox?.(domain);
     } else {
       if (!local || !domain) throw new Error("Missing local or domain for custom mailbox");
       mailbox = await prov.createMailbox(local, domain);
     }
-    // Remove sensitive fields
-    const { meta, password, ...safeMailbox } = mailbox;
-    if (meta && typeof meta === "object") {
-      // Only expose meta.id if present
-      safeMailbox.meta = { id: meta.id };
-    }
-    return NextResponse.json(safeMailbox);
-  } catch (e: any) {
-    return NextResponse.json({ error: e.message || "Failed to create mailbox." }, { status: 400 });
+    // Scrub sensitive fields
+    const safe: any = { id: mailbox.id, address: mailbox.address, createdAt: mailbox.createdAt, provider: mailbox.provider };
+    if (mailbox.meta?.id) safe.meta = { id: mailbox.meta.id };
+    return jsonOk(safe);
+  } catch (e) {
+    return jsonError(e);
   }
 }

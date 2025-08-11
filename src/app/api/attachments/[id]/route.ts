@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { pickProvider } from "@/lib/providers";
 import { z } from "zod";
+import { shouldThrottle, jsonError } from "@/lib/api/utils";
 
 export const runtime = "nodejs";
 
@@ -15,21 +16,24 @@ const MailboxSchema = z.object({
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
+    if (shouldThrottle(req)) {
+      return jsonError(new Error("RATE_LIMIT"), 429);
+    }
     const url = new URL(req.url);
     const mailboxParam = url.searchParams.get("mailbox");
     const filename = url.searchParams.get("filename") || "attachment";
     if (!mailboxParam) throw new Error("Missing mailbox param");
     const mailbox = MailboxSchema.parse(JSON.parse(mailboxParam));
     const { id } = ParamsSchema.parse(params);
-    const provider = pickProvider(mailbox.provider);
-    const stream = await provider.getAttachmentStream(mailbox, id, filename);
+    const provider = pickProvider(mailbox.provider as any);
+    const stream = await (provider as any).getAttachmentStream(mailbox as any, id, filename);
     return new Response(stream, {
       headers: {
         "Content-Type": "application/octet-stream",
         "Content-Disposition": `attachment; filename=\"${filename}\"`,
       },
     });
-  } catch (e: any) {
-    return new Response(JSON.stringify({ error: e.message || "Failed to fetch attachment." }), { status: 400 });
+  } catch (e) {
+    return jsonError(e);
   }
 }
