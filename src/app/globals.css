@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+:root {
+  --primary: 222 89% 55%; /* blue-600 */
+  --primary-glow: 222 89% 65%;
+  --gradient-primary: 222 89% 55%, 245 100% 67%;
+  --gradient-surface: 0 0% 100%, 222 89% 98%;
+  --shadow-elev: 0 2px 8px 0 hsl(222 89% 55% / 0.08);
+  --shadow-glow: 0 0 16px 0 hsl(222 89% 65% / 0.25);
+  --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary: 222 89% 70%; /* lighter blue */
+    --primary-glow: 222 89% 80%;
+    --gradient-primary: 222 89% 70%, 245 100% 80%;
+    --gradient-surface: 222 89% 10%, 222 89% 20%;
+    --shadow-elev: 0 2px 8px 0 hsl(222 89% 70% / 0.10);
+    --shadow-glow: 0 0 16px 0 hsl(222 89% 80% / 0.35);
+    --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+/* Hero Button Utility Example */
+.btn-hero {
+  @apply px-6 py-3 rounded-lg font-semibold text-white bg-[hsl(var(--primary))] shadow-[var(--shadow-elev)] transition-colors duration-200;
+  background-image: linear-gradient(90deg, hsl(var(--gradient-primary)));
+  box-shadow: var(--shadow-glow);
+  transition-timing-function: var(--transition-smooth);
+}
+.btn-hero:focus {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px hsl(var(--primary-glow) / 0.5);
+}
+
+/* Accessibility: visible focus ring, respects reduced motion */
+:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px hsl(var(--primary-glow) / 0.5);
+  transition: outline-color 0.2s var(--transition-smooth), box-shadow 0.2s var(--transition-smooth);
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition: none !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
