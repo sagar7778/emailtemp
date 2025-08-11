@@ -7,5 +7,30 @@
     "start": "next start",
     "smoke": "node scripts/smoke-test.cjs"
   },
-  "dependencies": {}
+  "devDependencies": {
+    "@types/node": "^24.2.1",
+    "@types/qrcode": "^1.5.5",
+    "@types/react": "^19.1.9",
+    "@types/react-dom": "^19.1.7",
+    "@typescript-eslint/eslint-plugin": "^8.39.0",
+    "@typescript-eslint/parser": "^8.39.0",
+    "eslint": "^9.33.0",
+    "eslint-config-next": "^15.4.6",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "@tailwindcss/postcss": "^4.1.11",
+    "autoprefixer": "^10.4.21",
+    "axios": "^1.11.0",
+    "nanoid": "^5.1.5",
+    "next": "^15.4.6",
+    "postcss": "^8.5.6",
+    "qrcode": "^1.5.4",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "sanitize-html": "^2.17.0",
+    "tailwindcss": "^4.1.11",
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^4.0.17"
+  }
 }

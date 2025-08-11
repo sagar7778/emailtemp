@@ -52,7 +52,9 @@ export default function InboxList({ messages, loading, onSelect, onRefresh }: In
           {messages.map((m, i) => (
             <li key={m.id}>
               <button
-                ref={el => (itemRefs.current[i] = el)}
+                ref={(el) => {
+                  itemRefs.current[i] = el;
+                }}
                 role="option"
                 aria-selected={i === activeIndex}
                 tabIndex={i === activeIndex ? 0 : -1}
