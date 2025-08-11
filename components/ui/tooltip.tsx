@@ -3,25 +3,23 @@ import { cn } from "./utils";
 
 export interface TooltipProps {
   content: React.ReactNode;
-  children: React.ReactElement;
+  children: React.ReactElement<any>;
   className?: string;
 }
 
 export const Tooltip: React.FC<TooltipProps> = ({ content, children, className }) => {
   const [open, setOpen] = React.useState(false);
-  const triggerRef = React.useRef<HTMLElement | null>(null);
 
   return (
     <span className="relative inline-block">
       {React.cloneElement(children, {
-        ref: triggerRef,
         onMouseEnter: () => setOpen(true),
         onMouseLeave: () => setOpen(false),
         onFocus: () => setOpen(true),
         onBlur: () => setOpen(false),
         tabIndex: 0,
         'aria-describedby': open ? 'tooltip' : undefined,
-      })}
+      } as any)}
       {open && (
         <div
           role="tooltip"

@@ -3,6 +3,7 @@
 import React from "react";
 import type { Mailbox } from "@/lib/providers/types";
 import { Toast } from "./ui/toast";
+import Image from "next/image";
 
 type ProvidersResponse = {
   providers: { id: string; label: string; domains: string[] }[];
@@ -136,7 +137,14 @@ export default function EmailAddressCard({ mailbox, onCreate, onRefresh, onDelet
               <button onClick={() => setShowQR(false)} aria-label="Close" className="text-sm">✕</button>
             </div>
             {qrSrc ? (
-              <img src={qrSrc} alt={`QR code for ${address}`} className="mx-auto h-48 w-48" loading="lazy" />
+              <Image 
+                src={qrSrc} 
+                alt={`QR code for ${address}`} 
+                width={192} 
+                height={192} 
+                className="mx-auto h-48 w-48" 
+                priority={false}
+              />
             ) : (
               <p className="text-sm text-muted-foreground">No address</p>
             )}

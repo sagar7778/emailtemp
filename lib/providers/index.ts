@@ -1,18 +1,10 @@
 import type { ProviderId, TempMailProvider } from "./types";
+import { oneSecMailProvider } from "./oneSecMail";
 import { tempMailPaidProvider } from "./tempMailPaid";
 
 // Placeholder implementations (to be filled in)
 export const providers: Record<ProviderId, TempMailProvider> = {
-  oneSec: {
-    id: "oneSec",
-    label: "1secmail",
-    domains: [],
-    getMailboxes: async () => [],
-    createMailbox: async () => { throw new Error("Not implemented"); },
-    getMessages: async () => [],
-    getMessageDetail: async () => { throw new Error("Not implemented"); },
-    deleteMailbox: async () => { throw new Error("Not implemented"); },
-  },
+  oneSec: oneSecMailProvider,
   mailTm: {
     id: "mailTm",
     label: "Mail.tm",

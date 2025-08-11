@@ -20,16 +20,26 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { provider, type, local, domain } = BodySchema.parse(body);
     const prov = pickProvider(provider as any);
+    
     let mailbox: any;
     if (type === "random") {
-      mailbox = await prov.createMailbox ? await prov.createMailbox(local || "", domain || "") : await (prov as any).createRandomMailbox?.(domain);
+      // For random, pass empty string as local and domain if provided
+      mailbox = await prov.createMailbox("", domain || "");
     } else {
+      // For custom, both local and domain are required
       if (!local || !domain) throw new Error("Missing local or domain for custom mailbox");
       mailbox = await prov.createMailbox(local, domain);
     }
+    
     // Scrub sensitive fields
-    const safe: any = { id: mailbox.id, address: mailbox.address, createdAt: mailbox.createdAt, provider: mailbox.provider };
+    const safe: any = { 
+      id: mailbox.id, 
+      address: mailbox.address, 
+      createdAt: mailbox.createdAt, 
+      provider: mailbox.provider 
+    };
     if (mailbox.meta?.id) safe.meta = { id: mailbox.meta.id };
+    
     return jsonOk(safe);
   } catch (e) {
     return jsonError(e);

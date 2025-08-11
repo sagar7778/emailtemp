@@ -1,26 +1,21 @@
 # Temp Mail Clone
 
-A modern, privacy-focused disposable email service built with Next.js 14, TypeScript, and Tailwind CSS. Create temporary email addresses instantly to protect your privacy and avoid spam.
+A modern, privacy-focused disposable email service built with Next.js, TypeScript, and Tailwind CSS.
 
-## Features
+## ✨ Features
 
-- 🚀 **Instant Setup** - No registration required
-- 🔄 **Auto-refresh** - Real-time inbox updates with polling and SSE
-- 🎨 **Modern UI** - Beautiful, responsive design with dark mode support
-- 🔒 **Privacy First** - No data stored permanently
-- 📱 **Mobile Friendly** - Works perfectly on all devices
-- ♿ **Accessible** - Full keyboard navigation and screen reader support
-- 🔧 **Multiple Providers** - Support for 1secmail, mail.tm, and optional paid providers
+- **Instant Email Creation**: Generate random or custom disposable email addresses
+- **Multiple Providers**: Support for 1secmail, Mail.tm, and optional paid providers
+- **Real-time Inbox**: Auto-refresh with polling and optional SSE support
+- **HTML Email Support**: Sanitized HTML rendering with fallback to text
+- **Attachment Downloads**: Secure file streaming from email providers
+- **QR Code Generation**: Easy sharing of email addresses
+- **Keyboard Navigation**: Full keyboard support (R refresh, J/K navigate, Enter open)
+- **Modern UI**: Glass morphism design with dark mode support
+- **Mobile Responsive**: Perfect experience on all devices
+- **Privacy First**: No registration, no tracking, complete anonymity
 
-## Tech Stack
-
-- **Frontend**: Next.js 14 (App Router), React 19, TypeScript
-- **Styling**: Tailwind CSS, shadcn/ui-style components
-- **Backend**: Next.js API Routes, Node.js runtime
-- **Libraries**: Axios, Zod, sanitize-html, qrcode, nanoid
-- **Providers**: 1secmail.com, mail.tm, optional paid provider
-
-## Quick Start
+## 🚀 Quick Start
 
 ### Prerequisites
 
@@ -29,312 +24,213 @@ A modern, privacy-focused disposable email service built with Next.js 14, TypeSc
 
 ### Installation
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd temp-mail-clone
-   ```
+```bash
+# Clone the repository
+git clone <your-repo-url>
+cd temp-mail-clone
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+# Install dependencies
+npm install
 
-3. **Set up environment variables** (optional)
-   ```bash
-   # Create .env.local
-   NEXT_PUBLIC_SITE_URL=http://localhost:3000
-   TEMPMAIL_API_KEY=your_paid_provider_key_here  # Optional
-   ```
+# Set up environment variables
+cp .env.example .env.local
+```
 
-4. **Run the development server**
-   ```bash
-   npm run dev
-   ```
+### Environment Variables
 
-5. **Open your browser**
-   Navigate to [http://localhost:3000](http://localhost:3000)
+Create a `.env.local` file with the following variables:
 
-## API Reference
+```env
+# Required: Site URL for SEO and canonical links
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+
+# Optional: API key for paid temp mail provider
+TEMPMAIL_API_KEY=your_api_key_here
+```
+
+### Development
+
+```bash
+# Start development server
+npm run dev
+
+# Open http://localhost:3000
+```
+
+### Production Build
+
+```bash
+# Build for production
+npm run build
+
+# Start production server
+npm start
+```
+
+## 🏗️ Project Structure
+
+```
+├── src/
+│   ├── app/                    # Next.js App Router
+│   │   ├── api/               # API routes
+│   │   │   ├── providers/     # Provider listing
+│   │   │   ├── session/       # Mailbox creation
+│   │   │   ├── messages/      # Message listing & detail
+│   │   │   ├── attachments/   # File downloads
+│   │   │   ├── qr/           # QR code generation
+│   │   │   └── sse/          # Server-Sent Events
+│   │   ├── globals.css       # Global styles & design tokens
+│   │   ├── layout.tsx        # Root layout with SEO
+│   │   └── page.tsx          # Main application page
+│   └── lib/
+│       ├── api/              # API utilities
+│       ├── providers/        # Email provider implementations
+│       ├── sanitize.ts       # HTML sanitization
+│       ├── format.ts         # Date formatting
+│       └── storage.ts        # Local storage wrapper
+├── components/
+│   ├── ui/                   # Reusable UI components
+│   ├── EmailAddressCard.tsx  # Email address display
+│   ├── InboxList.tsx         # Message list component
+│   └── MessageViewer.tsx     # Message detail viewer
+├── hooks/
+│   └── useInboxPolling.tsx   # Message polling hook
+└── scripts/
+    └── smoke-test.cjs        # API testing script
+```
+
+## 🔧 API Reference
 
 ### Endpoints
 
-#### `GET /api/providers`
-Returns available email providers and their domains.
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/providers` | List available providers and domains |
+| `POST` | `/api/session` | Create new mailbox (random/custom) |
+| `GET` | `/api/messages` | List messages for mailbox |
+| `GET` | `/api/messages/[id]` | Get message detail |
+| `GET` | `/api/attachments/[id]` | Download attachment |
+| `GET` | `/api/qr` | Generate QR code |
+| `GET` | `/api/sse` | Server-Sent Events stream |
 
-**Response:**
-```json
-{
-  "providers": [
-    {
-      "id": "oneSec",
-      "label": "1secmail",
-      "domains": ["1secmail.com", "1secmail.org"]
-    }
-  ],
-  "domainsByProvider": {
-    "oneSec": ["1secmail.com", "1secmail.org"]
-  }
-}
-```
+### Example Usage
 
-#### `POST /api/session`
-Creates a new mailbox (random or custom).
-
-**Request:**
-```json
-{
-  "type": "random|custom",
-  "provider": "oneSec",
-  "domain": "1secmail.com",
-  "local": "customname"  // Only for custom type
-}
-```
-
-**Response:**
-```json
-{
-  "id": "mailbox_id",
-  "address": "user@domain.com",
-  "provider": "oneSec",
-  "createdAt": "2024-01-01T00:00:00Z"
-}
-```
-
-#### `GET /api/messages?mailbox={serialized_mailbox}`
-Lists messages for a mailbox.
-
-**Response:**
-```json
-[
-  {
-    "id": "message_id",
-    "from": "sender@example.com",
-    "subject": "Email Subject",
-    "intro": "Preview text...",
-    "date": "2024-01-01T00:00:00Z",
-    "unread": true
-  }
-]
-```
-
-#### `GET /api/messages/[id]?mailbox={serialized_mailbox}`
-Gets detailed message content with sanitized HTML.
-
-**Response:**
-```json
-{
-  "id": "message_id",
-  "from": "sender@example.com",
-  "subject": "Email Subject",
-  "intro": "Preview text...",
-  "date": "2024-01-01T00:00:00Z",
-  "unread": true,
-  "html": "<p>Sanitized HTML content</p>",
-  "text": "Plain text content",
-  "attachments": [
-    {
-      "filename": "document.pdf",
-      "url": "/api/attachments/123",
-      "size": 1024
-    }
-  ]
-}
-```
-
-#### `GET /api/attachments/[id]?mailbox={serialized_mailbox}`
-Downloads attachment file.
-
-#### `GET /api/qr?text=email@domain.com`
-Generates QR code for email address.
-
-#### `GET /api/sse`
-Server-Sent Events endpoint for real-time updates.
-
-## Usage Examples
-
-### cURL Examples
-
+#### Create Random Mailbox
 ```bash
-# Get available providers
-curl http://localhost:3000/api/providers
-
-# Create random mailbox
 curl -X POST http://localhost:3000/api/session \
   -H "Content-Type: application/json" \
-  -d '{"type":"random","provider":"oneSec","domain":"1secmail.com"}'
-
-# Create custom mailbox
-curl -X POST http://localhost:3000/api/session \
-  -H "Content-Type: application/json" \
-  -d '{"type":"custom","provider":"oneSec","domain":"1secmail.com","local":"myemail"}'
-
-# List messages
-curl "http://localhost:3000/api/messages?mailbox=$(echo '{"id":"mailbox_id","address":"user@domain.com","provider":"oneSec","createdAt":"2024-01-01T00:00:00Z"}' | jq -c -r . | jq -sRr @uri)"
-
-# Get message detail
-curl "http://localhost:3000/api/messages/message_id?mailbox=$(echo '{"id":"mailbox_id","address":"user@domain.com","provider":"oneSec","createdAt":"2024-01-01T00:00:00Z"}' | jq -c -r . | jq -sRr @uri)"
-
-# Generate QR code
-curl "http://localhost:3000/api/qr?text=user@domain.com" --output qr.png
+  -d '{"type": "random", "provider": "oneSec"}'
 ```
 
-## Project Structure
-
-```
-temp-mail-clone/
-├── src/
-│   ├── app/
-│   │   ├── api/                    # API routes
-│   │   │   ├── providers/
-│   │   │   ├── session/
-│   │   │   ├── messages/
-│   │   │   ├── attachments/
-│   │   │   ├── qr/
-│   │   │   └── sse/
-│   │   ├── globals.css             # Global styles
-│   │   ├── layout.tsx              # Root layout
-│   │   └── page.tsx                # Home page
-│   └── lib/
-│       ├── api/
-│       │   └── utils.ts            # API utilities
-│       ├── providers/              # Email providers
-│       │   ├── types.ts
-│       │   ├── index.ts
-│       │   ├── oneSecMail.ts
-│       │   ├── mailTm.ts
-│       │   └── tempMailPaid.ts
-│       ├── sanitize.ts             # HTML sanitization
-│       ├── format.ts               # Date formatting
-│       └── storage.ts              # Local storage utilities
-├── components/
-│   ├── ui/                         # Reusable UI components
-│   │   ├── button.tsx
-│   │   ├── input.tsx
-│   │   ├── select.tsx
-│   │   ├── tabs.tsx
-│   │   ├── toast.tsx
-│   │   └── ...
-│   ├── EmailAddressCard.tsx        # Email display component
-│   ├── InboxList.tsx               # Message list
-│   ├── MessageViewer.tsx           # Message detail view
-│   ├── Header.tsx
-│   └── Footer.tsx
-├── hooks/
-│   └── useInboxPolling.tsx         # Polling hook
-├── scripts/
-│   └── smoke-test.cjs              # API smoke tests
-├── tailwind.config.ts              # Tailwind configuration
-├── next.config.ts                  # Next.js configuration
-└── package.json
+#### List Messages
+```bash
+curl "http://localhost:3000/api/messages?mailbox=%7B%22id%22%3A%22test%401secmail.com%22%2C%22address%22%3A%22test%401secmail.com%22%2C%22provider%22%3A%22oneSec%22%7D"
 ```
 
-## Features Checklist
+#### Generate QR Code
+```bash
+curl "http://localhost:3000/api/qr?text=test@1secmail.com" -o qr.png
+```
 
-### ✅ Core Functionality
-- [x] Create random email addresses
-- [x] Create custom email addresses
-- [x] Real-time message polling
-- [x] Message detail viewing
-- [x] HTML email sanitization
-- [x] Attachment downloads
-- [x] QR code generation
-- [x] Copy to clipboard
-- [x] Local storage persistence
+## 🎨 Design System
 
-### ✅ UI/UX
-- [x] Responsive design
-- [x] Dark mode support
-- [x] Keyboard navigation (R refresh, J/K navigate, Enter open)
-- [x] Loading states and skeletons
-- [x] Toast notifications
-- [x] Accessibility features (ARIA labels, focus management)
-- [x] Mobile-friendly interface
+### Design Tokens
 
-### ✅ Technical
-- [x] TypeScript throughout
-- [x] Zod validation
-- [x] Error handling
-- [x] Rate limiting
-- [x] SEO optimization
-- [x] Progressive enhancement (SSE fallback to polling)
-- [x] Security (HTML sanitization, no secrets in client)
+The application uses CSS custom properties for consistent theming:
 
-### ✅ Providers
-- [x] 1secmail.com integration
-- [x] mail.tm integration
-- [x] Optional paid provider stub
-- [x] Provider switching
-- [x] Domain selection
+```css
+:root {
+  --primary: 222 89% 55%;
+  --primary-glow: 222 89% 65%;
+  --gradient-primary: 222 89% 55%, 245 100% 67%;
+  --shadow-elev: 0 2px 8px 0 hsl(222 89% 55% / 0.08);
+  --shadow-glow: 0 0 16px 0 hsl(222 89% 65% / 0.25);
+}
+```
 
-## Environment Variables
+### Components
 
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `NEXT_PUBLIC_SITE_URL` | Site URL for SEO | No | `http://localhost:3000` |
-| `TEMPMAIL_API_KEY` | API key for paid provider | No | - |
+- **Button**: Multiple variants (default, outline, ghost, hero)
+- **Input**: Form inputs with focus states
+- **Select**: Dropdown selectors
+- **Card**: Content containers
+- **Tabs**: Tabbed interface
+- **Toast**: Notification system
+- **Tooltip**: Hover information
+- **Skeleton**: Loading states
 
-## Deployment
+## 🚀 Deployment
 
 ### Vercel (Recommended)
 
-1. Push to GitHub
-2. Connect repository to Vercel
-3. Set environment variables in Vercel dashboard
-4. Deploy
+1. **Connect Repository**: Link your GitHub repository to Vercel
+2. **Environment Variables**: Set the following in Vercel dashboard:
+   ```
+   NEXT_PUBLIC_SITE_URL=https://your-domain.vercel.app
+   TEMPMAIL_API_KEY=your_api_key_here (optional)
+   ```
+3. **Deploy**: Vercel will automatically build and deploy
 
 ### Other Platforms
 
-The app can be deployed to any platform supporting Next.js:
-- Netlify
-- Railway
-- DigitalOcean App Platform
-- AWS Amplify
+The application can be deployed to any platform that supports Next.js:
 
-## Development
+- **Netlify**: Use `next build && next export`
+- **Railway**: Direct deployment with Node.js runtime
+- **Docker**: Use the provided Dockerfile
 
-### Available Scripts
+## 🧪 Testing
 
-```bash
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run start        # Start production server
-npm run smoke        # Run API smoke tests
-```
+### Smoke Tests
 
-### Testing
+Run the included smoke test script:
 
 ```bash
-# Run smoke tests
 npm run smoke
-
-# Manual testing
-curl http://localhost:3000/api/providers
 ```
 
-## Troubleshooting
+This will test all API endpoints and verify the application is working correctly.
+
+### Manual Testing
+
+1. **Create Mailbox**: Test random and custom email creation
+2. **Message Polling**: Verify automatic inbox refresh
+3. **Keyboard Navigation**: Test R, J/K, Enter shortcuts
+4. **Responsive Design**: Test on mobile and desktop
+5. **Dark Mode**: Toggle system theme
+
+## 🔒 Security
+
+- **HTML Sanitization**: All email content is sanitized using `sanitize-html`
+- **Rate Limiting**: Basic throttling on API endpoints
+- **No Secrets**: Sensitive data never exposed to client
+- **CORS**: Proper CORS headers for API endpoints
+- **Input Validation**: Zod schemas for all API inputs
+
+## 🐛 Troubleshooting
 
 ### Common Issues
 
-1. **Build fails with Tailwind errors**
-   - Ensure all Tailwind dependencies are installed
-   - Check `tailwind.config.ts` configuration
-
-2. **API routes return 500 errors**
-   - Check provider API endpoints are accessible
-   - Verify environment variables are set correctly
-
-3. **TypeScript errors**
-   - Run `npm install` to ensure all types are installed
-   - Check `tsconfig.json` paths configuration
+1. **Build Errors**: Ensure all dependencies are installed
+2. **API Errors**: Check provider availability and rate limits
+3. **Styling Issues**: Verify Tailwind CSS is properly configured
+4. **SSE Errors**: Check browser compatibility and network issues
 
 ### Provider Status
 
-- **1secmail.com**: Free, no authentication required
-- **mail.tm**: Free, requires account creation
-- **Paid Provider**: Requires API key in `TEMPMAIL_API_KEY`
+- **1secmail**: Free, no authentication required (may have rate limits)
+- **Mail.tm**: Free, requires account creation
+- **TempMail Paid**: Optional, requires API key
 
-## Contributing
+### Debug Mode
+
+Enable debug logging by setting:
+
+```env
+DEBUG=true
+```
+
+## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
@@ -342,19 +238,18 @@ curl http://localhost:3000/api/providers
 4. Add tests if applicable
 5. Submit a pull request
 
-## License
+## 📄 License
 
 MIT License - see LICENSE file for details.
 
-## Security
+## 🔗 Links
 
-- All HTML content is sanitized before display
-- No sensitive data is stored permanently
-- API keys are only used server-side
-- Rate limiting is implemented on all endpoints
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Tailwind CSS](https://tailwindcss.com)
+- [TypeScript](https://www.typescriptlang.org)
+- [1secmail API](https://www.1secmail.com/api/)
+- [Mail.tm API](https://api.mail.tm)
 
 ---
 
 Built with ❤️ using Next.js, TypeScript, and Tailwind CSS.
-#   e m a i l t e m p  
- 
