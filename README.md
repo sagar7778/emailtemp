@@ -356,3 +356,5 @@ MIT License - see LICENSE file for details.
 ---
 
 Built with ❤️ using Next.js, TypeScript, and Tailwind CSS.
+#   e m a i l t e m p  
+ 
