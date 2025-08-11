@@ -1,3 +1,5 @@
+'use client';
+
 import { Button, Input, Select, Dropdown, Tabs, Skeleton } from "../../components/ui";
 import { useState } from "react";
 
